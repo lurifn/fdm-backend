@@ -3,40 +3,33 @@ package order
 import (
 	"fmt"
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
-	"github.com/lurifn/fdm-backend/configs"
-	"github.com/lurifn/fdm-backend/pkg/email"
+	"io"
 	"net/http"
-	"net/smtp"
 )
 
 func create(w http.ResponseWriter, r *http.Request) {
 	// Message
-	var message []byte
-	_, err := r.Body.Read(message)
+	message, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error.Println(err)
-		handleError("Error building email message", w)
+		handleError("Error processing order", w)
+
+		return
+	}
+	err = r.Body.Close()
+	if err != nil {
+		log.Warning.Println("Error closing request body: ", err)
+	}
+
+	err = Create(string(message))
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error sending order", w)
 
 		return
 	}
 
-	auth := email.LoginAuth(configs.Config.Email.From.Email, configs.Config.Email.From.Password)
-	err = smtp.SendMail(
-		configs.Config.Email.From.SMTP+":"+configs.Config.Email.From.Port,
-		auth,
-		configs.Config.Email.From.Email,
-		configs.Config.Email.To,
-		message,
-	)
-
-	if err != nil {
-		log.Error.Println(err)
-		handleError("Error sending email", w)
-
-		return
-	}
-
-	log.Info.Print("Email Sent Successfully!")
+	log.Info.Print("Order Sent Successfully!")
 }
 
 func handleError(msg string, w http.ResponseWriter) {
@@ -51,10 +44,10 @@ func handleError(msg string, w http.ResponseWriter) {
 }
 
 /**
-HandleRequests register the handlers for the APIs in this package
+HandleHTTPRequests register the handlers for the APIs in this package
 To expose the APIs you must run http.ListenAndServe after calling this.
 */
-func HandleRequests() {
+func HandleHTTPRequests() {
 	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:

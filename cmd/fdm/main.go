@@ -2,21 +2,21 @@ package main
 
 import (
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
-	"github.com/lurifn/fdm-backend/configs"
 	"github.com/lurifn/fdm-backend/pkg/order"
 	"net/http"
 )
 
 func main() {
-	err := configs.Config.Load()
-	if err != nil {
-		log.Error.Panic("error loading configs: ", err)
-	}
+	log.Info.Println("Initializing app...")
+	order.HandleHTTPRequests()
 
-	order.HandleRequests()
+	c := make(chan int)
+	go func() {
+		err := http.ListenAndServe(":8080", nil)
+		log.Error.Fatal(err)
+		c <- 1
+	}()
 
-	err = http.ListenAndServe("localhost:8080", nil)
-	if err != nil {
-		log.Error.Panic("error opening order service: ", err)
-	}
+	log.Debug.Println("Listening on port 8080")
+	log.Debug.Print(<- c)
 }

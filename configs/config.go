@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-var Config Configuration
-
 type Configuration struct {
 	Email struct {
 		From struct {
@@ -20,10 +18,11 @@ type Configuration struct {
 	} `yaml:"email"`
 }
 
-func (c *Configuration) Load() error {
+func Load() (*Configuration, error) {
+	var c Configuration
 	f, err := os.Open("configs/config.yml")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer func() {
@@ -36,8 +35,8 @@ func (c *Configuration) Load() error {
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(&c)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &c, nil
 }

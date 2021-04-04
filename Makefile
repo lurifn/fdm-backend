@@ -6,7 +6,7 @@ install:
 	go mod vendor
 
 lint:
-	yamllint configs
+	yamllint configs .github/workflows
 	golangci-lint run --fix
 
 test:
@@ -19,4 +19,8 @@ run:
 	./main
 	rm main
 
-all: install lint test build run
+docker:
+	docker-compose down
+	docker-compose up --build
+
+all: install lint test docker

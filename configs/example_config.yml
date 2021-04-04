@@ -1,0 +1,9 @@
+---
+email:
+  from:
+    email: test@test.com
+    password: password
+    smtp: smtp.com
+    port: 587
+  to:
+    - test@test.com
