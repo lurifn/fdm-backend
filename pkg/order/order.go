@@ -8,6 +8,7 @@ import (
 	"net/smtp"
 )
 
+// Create sends an email with the provided order according to the configurations loaded
 func Create(order string) error {
 	config, err := configs.Load()
 	if err != nil {

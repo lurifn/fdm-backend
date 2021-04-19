@@ -43,10 +43,8 @@ func handleError(msg string, w http.ResponseWriter) {
 	}
 }
 
-/**
-HandleHTTPRequests register the handlers for the APIs in this package
-To expose the APIs you must run http.ListenAndServe after calling this.
-*/
+// HandleHTTPRequests register the handlers for the APIs in this package
+// To expose the APIs you must run http.ListenAndServe after calling this.
 func HandleHTTPRequests() {
 	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

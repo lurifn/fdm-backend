@@ -18,5 +18,5 @@ func main() {
 	}()
 
 	log.Debug.Println("Listening on port 8080")
-	log.Debug.Print(<- c)
+	log.Debug.Print(<-c)
 }
