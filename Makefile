@@ -8,6 +8,8 @@ install:
 lint:
 	yamllint configs .github/workflows
 	golangci-lint run --fix
+	gofmt -l -w -s .
+	golint ./...
 
 test:
 

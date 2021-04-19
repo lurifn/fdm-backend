@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+// Configuration holds the content of the config file
+// To load configs use Load()
 type Configuration struct {
 	Email struct {
 		From struct {
@@ -18,6 +20,8 @@ type Configuration struct {
 	} `yaml:"email"`
 }
 
+// Load returns a Configuration loaded with the configs present in configs/config.yml
+// Refer to https://github.com/lurifn/fdm-backend/blob/main/configs/example_config.yml for an example
 func Load() (*Configuration, error) {
 	var c Configuration
 	f, err := os.Open("configs/config.yml")
