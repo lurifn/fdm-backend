@@ -26,4 +26,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ github.repository }}:${{ github.ref }}
+          tags: ${{ github.repository }}:${GITHUB_REF#refs/tags/}
