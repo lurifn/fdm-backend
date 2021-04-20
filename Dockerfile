@@ -15,6 +15,7 @@ COPY cmd cmd
 
 # Build the Go app
 RUN env GOOS=linux GOARCH=arm go build cmd/fdm/main.go
+RUN chmod +x main
 
 EXPOSE 8080
 
