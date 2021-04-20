@@ -17,6 +17,7 @@ vendor/
 
 # configs
 configs/config.yml
+configs/.env
 
 # IDE
 .idea
