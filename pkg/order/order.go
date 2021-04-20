@@ -25,6 +25,8 @@ func Create(order string, config EmailConfig) error {
 		order,
 	)
 
+	log.Debug.Printf(`Sending message to %s:\n"%s"`, config.BusinessEmail, message)
+
 	return smtp.SendMail(
 		config.NoReplySMTP+":"+config.NoReplyPort,
 		auth,
