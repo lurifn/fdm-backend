@@ -1,9 +1,5 @@
-
 install:
-	cd pkg/order && go mod vendor
-	cd configs && go mod vendor
-	cd cmd/fdm && go mod vendor
-	go mod vendor
+	go get -u ./...
 
 lint:
 	yamllint configs .github/workflows

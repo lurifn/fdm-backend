@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func create(w http.ResponseWriter, r *http.Request) {
+func create(w http.ResponseWriter, r *http.Request, config EmailConfig) {
 	// Message
 	message, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -21,7 +21,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 		log.Warning.Println("Error closing request body: ", err)
 	}
 
-	err = Create(string(message))
+	err = Create(string(message), config)
 	if err != nil {
 		log.Error.Println(err)
 		handleError("Error sending order", w)
@@ -45,11 +45,11 @@ func handleError(msg string, w http.ResponseWriter) {
 
 // HandleHTTPRequests register the handlers for the APIs in this package
 // To expose the APIs you must run http.ListenAndServe after calling this.
-func HandleHTTPRequests() {
+func HandleHTTPRequests(config EmailConfig) {
 	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			create(w, r)
+			create(w, r, config)
 		default:
 			log.Error.Print("error: invalid request ", r.Method)
 			handleError("invalid request", w)
