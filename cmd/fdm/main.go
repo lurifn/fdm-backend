@@ -4,6 +4,7 @@ import (
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
 	"github.com/joho/godotenv"
 	"github.com/lurifn/fdm-backend/pkg/order"
+	"github.com/lurifn/fdm-backend/pkg/repository/email"
 	"net/http"
 	"os"
 )
@@ -16,7 +17,7 @@ func main() {
 		log.Warning.Println("Error trying to load environment variables from .env file:", err)
 	}
 
-	order.HandleHTTPRequests(order.EmailConfig{
+	order.HandleHTTPRequests(email.Email{
 		NoReplyEmail:    os.Getenv("NOREPLY_EMAIL_ADDRESS"),
 		NoReplyPassword: os.Getenv("NOREPLY_EMAIL_PASSWORD"),
 		NoReplySMTP:     os.Getenv("NOREPLY_EMAIL_SMTP"),
