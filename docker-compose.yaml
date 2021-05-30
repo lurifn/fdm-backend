@@ -7,3 +7,19 @@ services:
       - "8080:8080"
     env_file:
       - configs/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+
+  mongo:
+    image: mongo
+    restart: always
+    env_file:
+      - configs/.env
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    env_file:
+      - configs/.env

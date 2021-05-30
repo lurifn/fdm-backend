@@ -1,4 +1,5 @@
 install:
+	go mod tidy
 	go get -u ./...
 
 lint:
@@ -8,7 +9,7 @@ lint:
 	golint ./...
 
 test:
-
+	go test -v ./...
 
 build:
 	go build cmd/fdm/main.go
