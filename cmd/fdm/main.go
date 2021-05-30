@@ -4,7 +4,7 @@ import (
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
 	"github.com/joho/godotenv"
 	"github.com/lurifn/fdm-backend/pkg/order"
-	"github.com/lurifn/fdm-backend/pkg/repository/email"
+	"github.com/lurifn/fdm-backend/pkg/repository/mongodb"
 	"net/http"
 	"os"
 )
@@ -17,12 +17,12 @@ func main() {
 		log.Warning.Println("Error trying to load environment variables from .env file:", err)
 	}
 
-	order.HandleHTTPRequests(email.Email{
-		NoReplyEmail:    os.Getenv("NOREPLY_EMAIL_ADDRESS"),
-		NoReplyPassword: os.Getenv("NOREPLY_EMAIL_PASSWORD"),
-		NoReplySMTP:     os.Getenv("NOREPLY_EMAIL_SMTP"),
-		NoReplyPort:     os.Getenv("NOREPLY_EMAIL_SMTP_PORT"),
-		BusinessEmail:   os.Getenv("BUSINESS_EMAIL_ADDRESS"),
+	order.HandleHTTPRequests(mongodb.MongoDB{
+		URI:        os.Getenv("MONGO_URI"),
+		DB:         os.Getenv("MONGO_DB_NAME"),
+		Collection: os.Getenv("MONGO_ORDERS_COLLECTION_NAME"),
+		Username:   os.Getenv("MONGO_INITDB_ROOT_USERNAME"),
+		Password:   os.Getenv("MONGO_INITDB_ROOT_PASSWORD"),
 	})
 
 	c := make(chan int)

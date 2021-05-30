@@ -45,7 +45,7 @@ func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	return nil, nil
 }
 
-func (e Email) Save(message string ) error {
+func (e Email) Save(message string) error {
 	auth := login(e.NoReplyEmail, e.NoReplyPassword)
 	msg := fmt.Sprintf(
 		"To: %s\r\nSubject: New order!\r\n\r\n%s\r\n",
