@@ -5,8 +5,14 @@ import (
 	"github.com/lurifn/fdm-backend/pkg/repository"
 )
 
-// Create sends an email with the provided order according to the configurations loaded
+// Create sends an email with the provided order according to the configurations loaded.
 func Create(order string, repo repository.Repository) error {
 	log.Info.Printf("Order: %s\n", order)
-	return repo.Save(order)
+	_, err := repo.Save(order)
+	if err != nil {
+		log.Error.Println("Error saving order: ", err.Error())
+		return err
+	}
+
+	return nil
 }

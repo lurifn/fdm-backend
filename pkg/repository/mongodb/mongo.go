@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -24,7 +25,7 @@ func unmarshalBson(obj string) (bson.M, error) {
 	return doc, err
 }
 
-func (config MongoDB) Save(message string) error {
+func (config MongoDB) Save(message string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	credential := options.Credential{Username: config.Username, Password: config.Password}
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.URI).SetAuth(credential))
@@ -39,14 +40,14 @@ func (config MongoDB) Save(message string) error {
 
 	if err != nil {
 		log.Error.Println("Error connecting with mongo:", err.Error())
-		return err
+		return "", err
 	}
 
 	// verify that we are really connected
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Error.Println("Error connecting with mongo:", err.Error())
-		return err
+		return "", err
 	}
 
 	log.Debug.Println("Successfully connected with mongo")
@@ -54,7 +55,7 @@ func (config MongoDB) Save(message string) error {
 	doc, err := unmarshalBson(message)
 	if err != nil {
 		log.Error.Println("Error unmarshalling", message, err.Error())
-		return err
+		return "", err
 	}
 
 	log.Debug.Println("Order bson prepared")
@@ -62,15 +63,14 @@ func (config MongoDB) Save(message string) error {
 	db := client.Database(config.DB)
 	collection := db.Collection(config.Collection)
 	res, err := collection.InsertOne(ctx, doc)
-
 	if err != nil {
 		log.Error.Println("Error inserting ", doc, err.Error())
 
-		return err
+		return "", err
 	}
 
-	id := res.InsertedID
+	id := res.InsertedID.(primitive.ObjectID).Hex()
 	log.Info.Println("Document with ID ", id, " stored in the DB collection ", config.Collection)
 
-	return nil
+	return id, nil
 }

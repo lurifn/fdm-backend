@@ -1,6 +1,7 @@
-package order
+package product
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
 	"github.com/lurifn/fdm-backend/pkg/repository"
@@ -10,10 +11,10 @@ import (
 
 func create(w http.ResponseWriter, r *http.Request, repo repository.Repository) {
 	// Message
-	message, err := io.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error.Println(err)
-		handleError("Error processing order", w)
+		handleError("Error processing order", w, http.StatusBadRequest)
 
 		return
 	}
@@ -22,21 +23,39 @@ func create(w http.ResponseWriter, r *http.Request, repo repository.Repository) 
 		log.Warning.Println("Error closing request body:", err)
 	}
 
-	err = Create(string(message), repo)
+	subject := Product{}
+	err = json.Unmarshal(body, &subject)
 	if err != nil {
 		log.Error.Println(err)
-		handleError("Error sending order", w)
+		handleError("Error parsing message, please check if body is valid", w, http.StatusBadRequest)
 
 		return
 	}
 
-	log.Info.Print("Order Sent Successfully!")
+	err = subject.Save(repo)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error sending order", w, http.StatusInternalServerError)
+
+		return
+	}
+
+	log.Info.Print("Product saved Successfully!")
+	subjectBytes, err := json.Marshal(subject)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error writing response", w, http.StatusCreated)
+
+		return
+	}
+
+	_, err = w.Write(subjectBytes)
 }
 
-func handleError(msg string, w http.ResponseWriter) {
+func handleError(msg string, w http.ResponseWriter, serverStatus int) {
 	errorResponse := fmt.Sprintf("{\"error\":\"%s\"}", msg)
 
-	w.WriteHeader(http.StatusInternalServerError)
+	w.WriteHeader(serverStatus)
 
 	_, wErr := w.Write([]byte(errorResponse))
 	if wErr != nil {
@@ -47,14 +66,13 @@ func handleError(msg string, w http.ResponseWriter) {
 // HandleHTTPRequests register the handlers for the APIs in this package
 // To expose the APIs you must run http.ListenAndServe after calling this.
 func HandleHTTPRequests(repo repository.Repository) {
-	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			create(w, r, repo)
 		default:
 			log.Error.Print("error: invalid request ", r.Method)
-			handleError("invalid request", w)
-			w.WriteHeader(http.StatusBadRequest)
+			handleError("invalid request", w, http.StatusBadRequest)
 		}
 	})
 }
