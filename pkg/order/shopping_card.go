@@ -1,4 +1,4 @@
-package product
+package order
 
 import (
 	"encoding/json"
@@ -6,16 +6,13 @@ import (
 	"github.com/lurifn/fdm-backend/pkg/repository"
 )
 
-type Product struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int    `json:"price"` // divide per 100 to get the actual price
-	Currency    string `json:"currency,omitempty"`
-	ImageURL    string `json:"image_url,omitempty"`
+type ShoppingCart struct {
+	ID          string   `json:"id,omitempty"`
+	ProductsIDs []string `json:"product_ids"`
 }
 
-func (p *Product) Save(repo repository.Repository) error {
+// Create sends an email with the provided order according to the configurations loaded.
+func (p *ShoppingCart) Save(repo repository.Repository) error {
 	if len(p.ID) > 0 {
 		return p.Update(repo)
 	}
@@ -40,10 +37,10 @@ func (p *Product) Save(repo repository.Repository) error {
 	return nil
 }
 
-func (p *Product) Update(repo repository.Repository) error {
+func (p *ShoppingCart) Update(repo repository.Repository) error {
 	id := p.ID
 	p.ID = ""
-	bin, err := json.Marshal(map[string]Product{
+	bin, err := json.Marshal(map[string]ShoppingCart{
 		id: *p,
 	})
 	if err != nil {

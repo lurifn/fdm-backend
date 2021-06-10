@@ -27,6 +27,9 @@ func main() {
 	}
 
 	order.HandleHTTPRequests(db)
+
+	db.Collection = os.Getenv("MONGO_PRODUCTS_COLLECTION_NAME")
+
 	product.HandleHTTPRequests(db)
 
 	c := make(chan int)

@@ -1,6 +1,7 @@
 package order
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/LuanaFn/FDM-protocol/pkg/log"
 	"github.com/lurifn/fdm-backend/pkg/repository"
@@ -22,7 +23,17 @@ func create(w http.ResponseWriter, r *http.Request, repo repository.Repository) 
 		log.Warning.Println("Error closing request body:", err)
 	}
 
-	err = Create(string(message), repo)
+	var cart ShoppingCart
+	err = json.Unmarshal(message, &cart)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error parsing order", w)
+		w.WriteHeader(http.StatusBadRequest)
+
+		return
+	}
+
+	err = cart.Save(repo)
 	if err != nil {
 		log.Error.Println(err)
 		handleError("Error sending order", w)
@@ -31,6 +42,24 @@ func create(w http.ResponseWriter, r *http.Request, repo repository.Repository) 
 	}
 
 	log.Info.Print("Order Sent Successfully!")
+
+	subjectBytes, err := json.Marshal(cart)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error loading response", w)
+		w.WriteHeader(http.StatusCreated)
+
+		return
+	}
+
+	_, err = w.Write(subjectBytes)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error writing response", w)
+		w.WriteHeader(http.StatusCreated)
+
+		return
+	}
 }
 
 func handleError(msg string, w http.ResponseWriter) {
