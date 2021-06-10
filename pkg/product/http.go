@@ -50,6 +50,12 @@ func create(w http.ResponseWriter, r *http.Request, repo repository.Repository) 
 	}
 
 	_, err = w.Write(subjectBytes)
+	if err != nil {
+		log.Error.Println(err)
+		handleError("Error writing response", w, http.StatusCreated)
+
+		return
+	}
 }
 
 func handleError(msg string, w http.ResponseWriter, serverStatus int) {
