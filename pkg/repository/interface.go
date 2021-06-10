@@ -1,5 +1,6 @@
 package repository
 
 type Repository interface {
-	Save(string) error
+	Save(string) (string, error)
+	Update(string2 string) (string, error)
 }
